@@ -1,15 +1,17 @@
 version: '3.8'
 
 services:
-#  backend:
-#    build:
-#      context: ./backend
-#    ports:
-#      - "8000:8000"
-#    volumes:
-#      - ./backend:/app  # Optional: For development
-#    depends_on:
-#      - frontend
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app  # Optional: For development
+    environment:
+      - OPENAI_KEY=${OPENAI_KEY}
+    depends_on:
+      - frontend
 
   frontend:
     build:
@@ -21,3 +23,4 @@ services:
       - ./webapp:/webapp
     environment:
       - NODE_ENV=production
+      - API_URL=${API_URL}
