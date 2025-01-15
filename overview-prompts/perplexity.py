@@ -1,5 +1,12 @@
 from openai import OpenAI
 
+import json
+
+with open('topics.json', 'r') as file:
+    data = json.load(file)
+
+# data["topic"] is prompt
+
 YOUR_API_KEY = "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"
 
 messages = [
@@ -12,11 +19,7 @@ messages = [
     {
         "role": "user",
         "content": (
-            "What are the current fundraising trends in the Legaltech sector as of January 2025? "
-            "Please provide insights into the types of funding sources being utilized, notable recent investments, "
-            "and any emerging technologies or startups that are gaining traction in this field. Additionally, "
-            "it would be helpful to understand how these trends compare to previous years and what factors "
-            "are driving changes in investment strategies within Legaltech."
+            data["investment_analysis"]
         ),
     },
 ]
