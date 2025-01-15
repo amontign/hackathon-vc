@@ -1,8 +1,23 @@
+version: '3.8'
+
 services:
-  web-server:
+#  backend:
+#    build:
+#      context: ./backend
+#    ports:
+#      - "8000:8000"
+#    volumes:
+#      - ./backend:/app  # Optional: For development
+#    depends_on:
+#      - frontend
+
+  frontend:
     build:
       context: ./webapp
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    volumes:
+      - ./webapp:/webapp
     environment:
       - NODE_ENV=production
