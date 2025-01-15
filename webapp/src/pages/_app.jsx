@@ -19,7 +19,7 @@ export default function App({ Component, pageProps }) {
             </Head>
             <Toaster />
             {/*<Header />*/}
-            <main className={outfit.className + " min-h-[calc(100vh-13.5rem)]"}>
+            <main className={outfit.className + " min-h-screen"}>
                 <Component {...pageProps} />
             </main>
             {/*<Footer />*/}

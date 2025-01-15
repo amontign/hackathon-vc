@@ -14,3 +14,7 @@
 html {
     scroll-behavior: smooth;
 }
+
+body {
+    background-color: #4C585B;
+}
