@@ -1,21 +1,20 @@
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html
-from pydantic import BaseModel, UUID4
-from openai import AsyncOpenAI
-import sqlite3
-import uuid
-from typing import Optional
-from enum import Enum
-from datetime import datetime
-from dotenv import load_dotenv
-import os
+from typing import Any
 
+import settings
+
+from dotenv import load_dotenv
 load_dotenv()
 
-client = AsyncOpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-)
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from starlette.status import HTTP_307_TEMPORARY_REDIRECT
+
+from uuid import UUID
+from job import jobs, Job
+
+from workflow import Workflow
+import asyncio
 
 app = FastAPI(
     title="Research Flow API",
@@ -31,169 +30,47 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Status(str, Enum):
-    COLLECTING = "Collecting"
-    SUMMARIZING = "Summarizing"
-    DONE = "Done"
 
-class ResearchFlow(BaseModel):
-    uuid: UUID4
-    status: Status
-    result: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
-
-class UUIDResponse(BaseModel):
-    uuid: UUID4
-
-class StatusResponse(BaseModel):
-    status: Status
-
-class ResultResponse(BaseModel):
-    result: str
-
-class ErrorResponse(BaseModel):
-    error: str
-
-def init_db():
-    conn = sqlite3.connect('research.db')
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS research_flows (
-            uuid TEXT PRIMARY KEY,
-            status TEXT CHECK(status IN ('Collecting', 'Summarizing', 'Done')) NOT NULL,
-            result TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
-def get_db():
-    conn = sqlite3.connect('research.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
-@app.get("/create", response_model=UUIDResponse, responses={
-    400: {"model": ErrorResponse},
-    500: {"model": ErrorResponse}
-})
+@app.get("/create", response_model=dict[str, Any])
 async def create_flow(term: str = Query(..., description="The domain to research (e.g., 'LegalTech')")):
     if not term:
         raise HTTPException(status_code=400, detail="Term parameter is required")
-
-    flow_uuid = str(uuid.uuid4())
-
+    job = Job.create()
+    jobs[job.uuid] = job
     print(term)
 
+    workflow = Workflow(search_term=term)
+    asyncio.create_task(workflow.run(job))
+    return {"uuid": str(job.uuid)}
+
+
+@app.get("/status", response_model=Job)
+async def get_status(uuid: UUID = Query(..., description="UUID of the research flow")):
     try:
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute(
-            'INSERT INTO research_flows (uuid, status) VALUES (?, ?)',
-            (flow_uuid, Status.COLLECTING)
-        )
+        return jobs[uuid]
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Research flow not found")
 
-        conn.commit()
 
-        #Call API
-        response = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": f"Provide a comprehensive analysis of the {term} market."}
-            ]
-        )
-        reply = response.choices[0].message.content
-
-        print(reply)
-
-        cursor.execute(
-            'UPDATE research_flows SET status = ?, result = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?',
-            (Status.DONE, reply, flow_uuid)
-        )
-        
-        conn.commit()
-        conn.close()
-
-        return {"uuid": flow_uuid}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/status", response_model=StatusResponse, responses={
-    400: {"model": ErrorResponse},
-    404: {"model": ErrorResponse},
-    500: {"model": ErrorResponse}
-})
-async def get_status(uuid: UUID4 = Query(..., description="UUID of the research flow")):
+@app.get("/result", response_model=dict[str,str])
+async def get_result(uuid: UUID = Query(..., description="UUID of the research flow")):
     try:
-        conn = get_db()
-        cursor = conn.cursor()
-        result = cursor.execute(
-            'SELECT status FROM research_flows WHERE uuid = ?',
-            (str(uuid),)
-        ).fetchone()
-        conn.close()
+        return {'result': jobs[uuid].result}
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Research flow not found")
 
-        if not result:
-            raise HTTPException(status_code=404, detail="Research flow not found")
 
-        return {"status": result['status']}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# Any other request - redirect to web
+@app.api_route("/{path_name:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def catch_all(request: Request, path_name: str):
+    # Redirect to your web interface
+    return RedirectResponse(
+        url=settings.WEB_URL,
+        status_code=HTTP_307_TEMPORARY_REDIRECT
+    )
 
-@app.get("/result", response_model=ResultResponse, responses={
-    400: {"model": ErrorResponse},
-    404: {"model": ErrorResponse},
-    500: {"model": ErrorResponse}
-})
-async def get_result(uuid: UUID4 = Query(..., description="UUID of the research flow")):
-    try:
-        with open('../test_output.md', 'r') as file:
-            markdown_content = file.read()
-
-        return {
-            "result": markdown_content
-        }
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Output file not found")
-    """try:
-        conn = get_db()
-        cursor = conn.cursor()
-        result = cursor.execute(
-            'SELECT status, result FROM research_flows WHERE uuid = ?',
-            (str(uuid),)
-        ).fetchone()
-        conn.close()
-
-        if not result:
-            raise HTTPException(status_code=404, detail="Research flow not found")
-
-        if result['status'] != Status.DONE:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Research is not complete yet (status: {result['status']})"
-            )
-
-        if not result['result']:
-            raise HTTPException(status_code=400, detail="No result available")
-
-        return {"result": result['result']}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))"""
-
-# Root path handler
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -7,7 +7,9 @@ services:
     volumes:
       - ./backend:/app  # Optional: For development
     environment:
-      - OPENAI_KEY=${OPENAI_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PERPLEXITY_KEY=${PERPLEXITY_KEY}
+      - WEB_URL=${WEB_URL}
     depends_on:
       - frontend
 
@@ -21,4 +23,4 @@ services:
       - ./webapp:/webapp
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${API_URL}
+      - API_URL=${API_URL}
