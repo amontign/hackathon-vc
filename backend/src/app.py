@@ -123,6 +123,15 @@ async def get_status(uuid: UUID4 = Query(..., description="UUID of the research 
 })
 async def get_result(uuid: UUID4 = Query(..., description="UUID of the research flow")):
     try:
+        with open('test_output.md', 'r') as file:
+            markdown_content = file.read()
+
+        return {
+            "first_part": markdown_content
+        }
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Output file not found")
+    """try:
         conn = get_db()
         cursor = conn.cursor()
         result = cursor.execute(
@@ -147,7 +156,7 @@ async def get_result(uuid: UUID4 = Query(..., description="UUID of the research 
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))"""
 
 # Root path handler
 @app.get("/")
