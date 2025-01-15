@@ -19,6 +19,9 @@ Go to https://hack25mr.rdp.vc and check how it works!
 3. Run `docker compose build` and `docker compose up`
 4. Visit https://localhost:30012
 
+## Docs
+- Backend: https://localhost:30011/docs
+
 ## How it works?
 
 > TBD
@@ -29,18 +32,18 @@ Go to https://hack25mr.rdp.vc and check how it works!
 - [x]  GitHub Repo
 - [x]  .env 
 - [ ]  description
-- [ ]  Perplexity API wrapper
+- [x]  Perplexity API wrapper
 - [ ]  Harmonic wrapper
 - [ ]  Harmonic export to gpt input
 - [x]  docker-compose: python + frontend
 - [x]  deploy
 - [ ]  recheck whether everything exists in the result
-- [ ]  prompts
+- [x]  prompts
 - [ ]  fund specific metrics
 
 #### Inputs / data
 
-- [ ]  Overview prompts
+- [x]  Overview prompts
 - [ ]  Final prompt
 
 #### QA
