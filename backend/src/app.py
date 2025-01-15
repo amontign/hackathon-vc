@@ -2,11 +2,20 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from pydantic import BaseModel, UUID4
+from openai import AsyncOpenAI
 import sqlite3
 import uuid
 from typing import Optional
 from enum import Enum
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+client = AsyncOpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+)
 
 app = FastAPI(
     title="Research Flow API",
@@ -78,6 +87,8 @@ async def create_flow(term: str = Query(..., description="The domain to research
 
     flow_uuid = str(uuid.uuid4())
 
+    print(term)
+
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -85,6 +96,26 @@ async def create_flow(term: str = Query(..., description="The domain to research
             'INSERT INTO research_flows (uuid, status) VALUES (?, ?)',
             (flow_uuid, Status.COLLECTING)
         )
+
+        conn.commit()
+
+        #Call API
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": f"Provide a comprehensive analysis of the {term} market."}
+            ]
+        )
+        reply = response.choices[0].message.content
+
+        print(reply)
+
+        cursor.execute(
+            'UPDATE research_flows SET status = ?, result = ?, updated_at = CURRENT_TIMESTAMP WHERE uuid = ?',
+            (Status.DONE, reply, flow_uuid)
+        )
+        
         conn.commit()
         conn.close()
 
