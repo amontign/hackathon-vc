@@ -23,4 +23,4 @@ services:
       - ./webapp:/webapp
     environment:
       - NODE_ENV=production
-      - API_URL=${API_URL}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}

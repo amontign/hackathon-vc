@@ -11,7 +11,7 @@ export default function Home() {
     const reasearch_id = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
 
     function getResults(uuid) {
-        fetch(`${process.env.API_URL}/result?uuid=${uuid}`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/result?uuid=${uuid}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export default function Home() {
             toast.error('Please enter a market');
             return;
         }
-        fetch(`${process.env.API_URL}/create?term=${market}`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/create?term=${market}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
