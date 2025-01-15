@@ -1,0 +1,179 @@
+openapi: 3.0.0
+info:
+  title: Research Flow API
+  description: API for managing research flows across different domains using AI services
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /create:
+    get:
+      summary: Create a new research flow
+      description: Initiates a new research flow for a given domain term
+      parameters:
+        - in: query
+          name: term
+          required: true
+          schema:
+            type: string
+          description: The domain to research (e.g., "LegalTech")
+          example: "LegalTech"
+      responses:
+        '200':
+          description: Successfully created research flow
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    format: uuid
+                    description: Unique identifier for the research flow
+        '400':
+          description: Bad request - missing term parameter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /status:
+    get:
+      summary: Get research flow status
+      description: Retrieves the current status of a research flow
+      parameters:
+        - in: query
+          name: uuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: UUID of the research flow
+      responses:
+        '200':
+          description: Successfully retrieved status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [Collecting, Summarizing, Done]
+        '400':
+          description: Bad request - invalid UUID format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Research flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /result:
+    get:
+      summary: Get research flow result
+      description: Retrieves the final result of a completed research flow
+      parameters:
+        - in: query
+          name: uuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: UUID of the research flow
+      responses:
+        '200':
+          description: Successfully retrieved result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: Markdown formatted research results
+        '400':
+          description: Bad request - invalid UUID or research not complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  status:
+                    type: string
+                    enum: [Collecting, Summarizing, Done]
+        '404':
+          description: Research flow not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+components:
+  schemas:
+    ResearchFlow:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [Collecting, Summarizing, Done]
+        result:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
