@@ -16,7 +16,6 @@ export default async (req, res) => {
         console.log("Error: No text provided!");
         return res.status(400).json({ message: "Missing text" });
       }
-
     try {
         console.log("Received text:", text);
         console.log("Sending request to OpenAI API...");
@@ -28,7 +27,7 @@ export default async (req, res) => {
             { role: "user", content: text },
           ],
         });
-        console.log("OpenAI API Response:", response.data);
+        console.log("OpenAI API Response:", response.choices[0].message.content);
         res.status(200).json({
             user_input: text,
             reply: response.choices[0].message.content,
