@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "8000:8000"
+      - "30011:8000"
     volumes:
       - ./backend:/app  # Optional: For development
     environment:
@@ -18,7 +18,7 @@ services:
       context: ./webapp
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "30012:3000"
     volumes:
       - ./webapp:/webapp
     environment:
