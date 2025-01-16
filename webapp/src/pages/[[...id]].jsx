@@ -265,7 +265,7 @@ export default function Home() {
                 </form>
 
                     {/* Search exemples */}
-                    <div className={`transition-all flex flex-col gap-5 items-center ${showSearchResults ? "max-h-0 opacity-0" : " max-h-screen opacity-100"}`}>
+                    {/*<div className={`transition-all flex flex-col gap-5 items-center ${showSearchResults ? "max-h-0 opacity-0" : " max-h-screen opacity-100"}`}>
                         <div className="w-[90rem] flex gap-5">
                             <div className="w-1/3 bg-[#ffffffd0] rounded-lg flex flex-col gap-2 justify-between p-2 cursor-pointer">
                                 <p className="text-xl font-semibold">Legal tech</p>
@@ -345,7 +345,7 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>*/}
             </div>
             {showSearchResults && (
                 <div className="w-full h-full px-32">
