@@ -1,6 +1,8 @@
 import os
 import requests
+from ai import PerplexityWrapper
 import re
+import asyncio
 
 def extract_yearly_metrics(metrics):
     yearly_metrics = {}
@@ -95,25 +97,46 @@ def enrich_company_list(company_list):
     return company_data
     
 
-async def find_top_startups(market_description, perplexity):
+async def find_top_startups(market_description, perplexity: PerplexityWrapper):
     prompt = f"""
-        Given the following market description or company name, find the top startups in this market.
+        Given the following market description, find the top startups in this market.
         Return a list of up to 10 website addresses of the companies.
 
-        Market Description / Company name: {market_description}
+        Market Description: {market_description}
     """
     answer = await perplexity.get_answer("user", prompt)
             
     return extract_domains(answer)
 
-async def find_enterprises(market_description, perplexity):
+async def find_enterprises(market_description, perplexity: PerplexityWrapper):
     prompt = f"""
-        Given the following market description or company name, find the top 10 enterprise or incumbents in this market.
+        Given the following market description, find the top 10 enterprise or incumbents in this market.
         Return a list of up to 10 website addresses of the companies.
 
-        Market Description / Company name: {market_description}
+        Market Description: {market_description}
     """
     answer = await perplexity.get_answer("user", prompt)
     return extract_domains(answer)
+
+async def combine_yearly_metrics(company_list):
+    yearly_headcount = {}
+
+    # Sum yearly headcount and webtraffic for startups
+    for company in company_list:
+        if 'yearly_headcounts' in company:
+            for year, count in company['yearly_headcounts'].items():
+                yearly_headcount[year] = yearly_headcount.get(year, 0) + count
+
+    return yearly_headcount
+
+async def combine_yearly_webtraffic(company_list):
+    yearly_webtraffic = {}
+
+    for company in company_list:
+        if 'yearly_web_traffic' in company:
+            for year, traffic in company['yearly_web_traffic'].items():
+                yearly_webtraffic[year] = yearly_webtraffic.get(year, 0) + traffic
+
+    return yearly_webtraffic
 
 

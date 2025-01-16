@@ -78,13 +78,13 @@ class Workflow:
         return self.startup_companies
 
     async def get_table_webvisits(self):
-        self.startup_yearly_webtraffic = harmonic_requests.get_yearly_webtraffic(self.startup_companies)
-        self.enterprise_yearly_webtraffic = harmonic_requests.get_yearly_webtraffic(self.enterprise_companies)
+        self.startup_yearly_webtraffic = harmonic_requests.combine_yearly_webtraffic(self.startup_companies)
+        self.enterprise_yearly_webtraffic = harmonic_requests.combine_yearly_webtraffic(self.enterprise_companies)
         return self.enterprise_yearly_webtraffic
 
     async def get_table_employees_total(self):
-        self.startup_yearly_headcount = harmonic_requests.get_yearly_headcount(self.startup_companies)
-        self.enterprise_yearly_headcount = harmonic_requests.get_yearly_headcount(self.enterprise_companies)
+        self.startup_yearly_headcount = harmonic_requests.combine_yearly_metrics(self.startup_companies)
+        self.enterprise_yearly_headcount = harmonic_requests.combine_yearly_metrics(self.enterprise_companies)
         return self.enterprise_yearly_headcount
 
     async def run(self) -> str:
