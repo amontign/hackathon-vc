@@ -8,10 +8,6 @@
 
 Go to https://hack25mr.rdp.vc and check how it works!
 
-## Description 
-
-> TBD
-
 ## How to deploy locally
 
 1. Create `.env` file `cp .env.example .env`
@@ -21,10 +17,6 @@ Go to https://hack25mr.rdp.vc and check how it works!
 
 ## Docs
 - Backend: https://localhost:30011/docs or https://api.hack25mr.rdp.vc/docs
-
-## How it works?
-
-> TBD
 
 ## Checklist
 
@@ -60,6 +52,15 @@ Go to https://hack25mr.rdp.vc and check how it works!
 - [ ]  Fund custom questions
 
 ## Authors
+- [Gareth Carless - Atomico](https://www.linkedin.com/in/garethcarless/)
 - [Eugene Chernyavsky - Runa Capital](https://www.linkedin.com/in/evgeniy-chernyavskiy/)
+- [Stevenson Jossaint - Developer - 42](https://www.linkedin.com/in/stevenson-jossaint/)
+- [Alban Montigny - Developer - 42](https://www.linkedin.com/in/alban-montigny/)
+- [Martin Naturel -BPI France](https://www.linkedin.com/in/martin-naturel-459270130/)
+- [Thomas Rocher -BPI France](https://www.linkedin.com/in/thomas-rocher-bpifrance/)
+- [Thomas Willson - Partech Partners](https://www.linkedin.com/in/thomas-willson-5a8b31207/)
+- [Daniel Zhou - Data Scientist - Télécom Paris](https://www.linkedin.com/in/zhou-daniel/)
+
+
 
 MIT
