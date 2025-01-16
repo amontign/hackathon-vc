@@ -97,10 +97,10 @@ def enrich_company_list(company_list):
 
 async def find_top_startups(market_description, perplexity):
     prompt = f"""
-        Given the following market description, find the top startups in this market.
+        Given the following market description or company name, find the top startups in this market.
         Return a list of up to 10 website addresses of the companies.
 
-        Market Description: {market_description}
+        Market Description / Company name: {market_description}
     """
     answer = await perplexity.get_answer("user", prompt)
             
@@ -108,10 +108,10 @@ async def find_top_startups(market_description, perplexity):
 
 async def find_enterprises(market_description, perplexity):
     prompt = f"""
-        Given the following market description, find the top 10 enterprise or incumbents in this market.
+        Given the following market description or company name, find the top 10 enterprise or incumbents in this market.
         Return a list of up to 10 website addresses of the companies.
 
-        Market Description: {market_description}
+        Market Description / Company name: {market_description}
     """
     answer = await perplexity.get_answer("user", prompt)
     return extract_domains(answer)

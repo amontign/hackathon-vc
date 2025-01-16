@@ -70,18 +70,22 @@ class Workflow:
     async def get_table_enterprise(self):
         enterprise_domains = await harmonic_requests.find_enterprises(self.search_term, self.perplexity)
         self.enterprise_companies = harmonic_requests.enrich_company_list(enterprise_domains)
+        return enterprise_domains
 
     async def get_table_startup(self):
         startup_domains = await harmonic_requests.find_top_startups(self.search_term, self.perplexity)
         self.startup_companies = harmonic_requests.enrich_company_list(startup_domains)
+        return self.startup_companies
 
     async def get_table_webvisits(self):
         self.startup_yearly_webtraffic = harmonic_requests.get_yearly_webtraffic(self.startup_companies)
         self.enterprise_yearly_webtraffic = harmonic_requests.get_yearly_webtraffic(self.enterprise_companies)
+        return self.enterprise_yearly_webtraffic
 
     async def get_table_employees_total(self):
         self.startup_yearly_headcount = harmonic_requests.get_yearly_headcount(self.startup_companies)
         self.enterprise_yearly_headcount = harmonic_requests.get_yearly_headcount(self.enterprise_companies)
+        return self.enterprise_yearly_headcount
 
     async def run(self) -> str:
         """
