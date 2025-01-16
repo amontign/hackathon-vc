@@ -2,11 +2,10 @@ from openai import OpenAI
 
 import json
 
-with open('topics.json', 'r') as file:
+with open('../backend/src/prompts/overview_questions_all.json', 'r') as file:
     data = json.load(file)
 
 # data["topic"] is prompt
-
 YOUR_API_KEY = "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"
 
 messages = [
@@ -24,7 +23,7 @@ messages = [
     },
 ]
 
-client = OpenAI(api_key=YOUR_API_KEY, base_url="https://api.perplexity.ai")
+client = OpenAI(api_key=YOUR_API_KEY,base_url="https://api.perplexity.ai")
 
 # chat completion without streaming
 response = client.chat.completions.create(
