@@ -8,3 +8,4 @@ openai
 requests
 httpx
 pandas
+tabulate

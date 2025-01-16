@@ -1,9 +1,10 @@
+import settings
 from ai import PerplexityWrapper, ChatGPTWrapper
 from overview import ParallelQuestions
 from job import Job, Status
 from typing import List
 import harmonic_requests
-from settings import SRC_DIR
+
 import pandas as pd
 
 
@@ -62,7 +63,7 @@ class Workflow:
             [f"**Q**: {item[0]}\n**A**: {item[1]}" for item in self.qa_pairs]
         )
 
-        with open(SRC_DIR / 'prompts' / 'final_role.txt', 'r') as f:
+        with open(settings.SRC_DIR / 'prompts' / 'final_role.txt', 'r') as f:
             final_role = f.read()
 
         final_prompt = (
@@ -141,8 +142,8 @@ class Workflow:
         self.job.progress += 20
         self.job.state = Status.DONE
         self.job.result = self.summary
-        # self.job.summary = self.summary_with_tables
-        # print(self.summary_with_tables)
+        self.job.summary_with_tables = self.summary_with_tables
+        print(self.summary_with_tables)
         return self.summary
 
 
@@ -152,7 +153,6 @@ async def main():
                         )
     result_markdown = await workflow.run()
     print(result_markdown)
-
 
 if __name__ == "__main__":
     import asyncio

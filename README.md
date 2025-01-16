@@ -11,36 +11,42 @@ Go to https://hack25mr.rdp.vc and check how it works!
 ## How to deploy locally
 
 1. Create `.env` file `cp .env.example .env`
-2. Fill the [OpenAI API key](https://platform.openai.com/api-keys) and [Perplexity API key](https://www.perplexity.ai/settings/api)
-3. Run `docker compose build` and `docker compose up`
+2. Fill the [OpenAI API key](https://platform.openai.com/api-keys), [Perplexity API key](https://www.perplexity.ai/settings/api) and [Harmonic API key](https://console.harmonic.ai/docs)
+3. Run `make`
 4. Visit https://localhost:30012
 
 ## Docs
 - Backend: https://localhost:30011/docs or https://api.hack25mr.rdp.vc/docs
+
+## How it works
+
 
 ## Checklist
 
 #### Code modules
 - [x]  GitHub Repo
 - [x]  .env 
-- [ ]  description
+- [x]  description
 - [x]  Perplexity API wrapper
-- [ ]  Harmonic wrapper
-- [ ]  Harmonic export to gpt input
+- [x]  Harmonic wrapper
+- [x]  Harmonic export to gpt input
 - [x]  docker-compose: python + frontend
 - [x]  deploy
-- [ ]  recheck whether everything exists in the result
+- [x]  recheck whether everything exists in the result
 - [x]  prompts
 - [ ]  fund specific metrics
+- [x]  questions checkboxes
+- [x]  table of the startups and enterprises
+- [ ]  trend chart
 
 #### Inputs / data
 
 - [x]  Overview prompts
-- [ ]  Final prompt
+- [x]  Final prompt
 
 #### QA
 
-- [ ]  Find 10 examples topics and test them
+- [x]  Find 10 examples topics and test them
 
 #### Security
 

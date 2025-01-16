@@ -17,6 +17,7 @@ class Job(object):
     table_enterprise: list[dict] = None
     chart_web_trend:  dict = None
     chart_headcount_trend: dict = None
+    summary_with_tables: str = ""
 
     @classmethod
     def create(cls):
