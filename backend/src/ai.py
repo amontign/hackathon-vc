@@ -64,12 +64,18 @@ class PerplexityWrapper(BaseAIWrapper):
 
     @staticmethod
     def format_result(message: str, citations: list) -> str:
-        ...
+        def replace_citation(match):
+            index = int(match.group(1)) - 1
+            if 0 <= index < len(citations):
+                return f' [{index + 1}]({citations[index]})'
+            return match.group(0)
+
+        return re.sub(r'\[(\d+)\]', replace_citation, message)
 
     async def get_answer(self, role: str, question: str) -> Optional[str]:
         message, citations = await self._get_answer(role, question)
-        # return self.format_result(message, citations)
-        return message
+        return self.format_result(message, citations)
+        # return message
 
 class ChatGPTWrapper(BaseAIWrapper):
     """
@@ -85,15 +91,6 @@ class ChatGPTWrapper(BaseAIWrapper):
 
     async def get_answer(self, role: str, question: str) -> Optional[str]:
         return (await self._get_answer(role, question))[0]
-
-def assign_links(message: str, citations: list[str]) -> str:
-    def replace_citation(match):
-        index = int(match.group(1)) - 1
-        if 0 <= index < len(citations):
-            return f' [{index + 1}]({citations[index]})'
-        return match.group(0)
-    
-    return re.sub(r'\[(\d+)\]', replace_citation, message)
 
 def test():
     example_message = """
@@ -137,5 +134,5 @@ def test():
     # print(PerplexityWrapper().format_result(example_message, example_citations))
     #print(assign_links(example_message, example_citations))
 
-""" if __name__ == "__main__":
-    test() """
+if __name__ == "__main__":
+    test()
