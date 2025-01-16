@@ -3,6 +3,7 @@ from overview import ParallelQuestions
 from job import Job, Status
 from typing import List
 import harmonic_requests
+from settings import SRC_DIR
 
 
 class Workflow:
@@ -59,11 +60,17 @@ class Workflow:
         combined_qa = "\n".join(
             [f"**Q**: {item[0]}\n**A**: {item[1]}" for item in self.qa_pairs]
         )
+
+        with open(SRC_DIR / 'prompts' / 'final_role.txt', 'r') as f:
+            final_role = f.read()
+
         final_prompt = (
             "Summarize the following questions and answers in a concise way:\n\n"
             f"{combined_qa}"
         )
-        self.summary = await self.chat_gpt.get_answer(role="system", question=final_prompt)
+
+
+        self.summary = await self.chat_gpt.get_answer(role=final_role, question=final_prompt)
         # Format the summary in Markdown
         self.summary = f"# Summary\n\n{self.summary}"
 
