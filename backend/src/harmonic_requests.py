@@ -1,5 +1,5 @@
 import os
-import requests
+import httpx
 from ai import PerplexityWrapper
 import re
 
@@ -30,14 +30,18 @@ async def get_company(domain):
         Input: Domain of the company
         Output: Harmonic company object with relevant fields
     """
-
-    # TODO: rewrite to httpx
-
     url = "https://api.harmonic.ai/companies"
-    response = requests.post(url,
-                            headers={"accept": "application/json",
-                                    "apikey": os.getenv("HARMONIC_API_KEY")},
-                            params={"website_domain": domain}).json()
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            url,
+            headers={
+                "accept": "application/json",
+                "apikey": os.getenv("HARMONIC_API_KEY")
+            },
+            params={"website_domain": domain}
+        )
+        response = response.json()
 
     try:
         company_output = {}
