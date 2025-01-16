@@ -1,3 +1,4 @@
 .env
 /backend/research.db
 /backend/src/research.db
+/backend/src/__pycache__
