@@ -21,6 +21,23 @@ class ParallelQuestions:
         with open(SRC_DIR / 'prompts' / 'overview_role.txt', 'r') as f:
             self.role = f.read()
 
+    import os
+    from pathlib import Path
+
+    def load_prompts(self):
+        prompts = {}
+        prompts_dir = SRC_DIR / 'prompts' / 'overview'
+
+        # Iterate through all txt files in the prompts directory
+        for txt_file in prompts_dir.glob('*.txt'):
+            # Get the filename without extension as the key
+            key = txt_file.stem
+
+            # Read the content of the txt file
+            with open(txt_file, 'r') as f:
+                prompts[key] = f.read()
+
+        self.prompts = prompts
     async def ask_all(self):
         tasks = []
         # Schedule tasks with incremental delays
