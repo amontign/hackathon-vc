@@ -2,8 +2,13 @@ from openai import OpenAI
 
 import json
 
-with open('../backend/src/prompts/overview_questions_all.json', 'r') as file:
-    data = json.load(file)
+prompt_path = '../backend/src/prompts/ai_use_cases.txt'
+
+with open(prompt_path, 'r') as file:
+    data = file.read()
+
+# with open('../backend/src/prompts/ai_use_cases.txt', 'r') as file:
+
 
 # data["topic"] is prompt
 
