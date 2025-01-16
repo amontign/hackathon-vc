@@ -64,13 +64,6 @@ async def get_status(uuid: UUID = Query(..., description="UUID of the research f
         raise HTTPException(status_code=404, detail="Research flow not found")
 
 
-@app.get("/result", response_model=dict[str, str])
-async def get_result(uuid: UUID = Query(..., description="UUID of the research flow")):
-    try:
-        return {'result': jobs[uuid].result}
-    except KeyError:
-        raise HTTPException(status_code=404, detail="Research flow not found")
-
 
 @app.get("/overview_topics", response_model=List[str])
 async def get_overview_topics():

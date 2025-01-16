@@ -13,6 +13,10 @@ class Job(object):
     search_term: str = ""
     search_type: str = None
     topics: list[str] = None
+    table_startup: list[dict] = None
+    table_enterprise: list[dict] = None
+    chart_web_trend:  dict = None
+    chart_headcount_trend: dict = None
 
     @classmethod
     def create(cls):

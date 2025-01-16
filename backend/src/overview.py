@@ -20,8 +20,7 @@ class ParallelQuestions:
         with open(SRC_DIR / 'prompts' / 'overview_role.txt', 'r') as f:
             self.role = f.read()
 
-    @staticmethod
-    def load_prompts(topics: List[str] = None):
+    def load_prompts(self, topics: List[str] = None):
         prompts = {}
         prompts_dir = SRC_DIR / 'prompts' / 'overview'
 
@@ -54,7 +53,9 @@ class ParallelQuestions:
             except Exception as e:
                 print(f"Error reading file {file_path}: {str(e)}")
                 continue
-
+        if len(prompts) == 0:
+            if 'Current Market State' in available_files:
+                return self.load_prompts(['Current Market State'])
         return prompts
 
     async def ask_all(self):
