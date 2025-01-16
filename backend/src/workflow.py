@@ -70,7 +70,7 @@ class Workflow:
     async def get_table_enterprise(self):
         enterprise_domains = await harmonic_requests.find_enterprises(self.search_term, self.perplexity)
         self.enterprise_companies = harmonic_requests.enrich_company_list(enterprise_domains)
-        return enterprise_domains
+        return self.enterprise_companies
 
     async def get_table_startup(self):
         startup_domains = await harmonic_requests.find_top_startups(self.search_term, self.perplexity)
