@@ -37,12 +37,16 @@ app.add_middleware(
 async def create_flow(
         search_type: SearchType = Query(..., description="The type of search to perform: 'market' or 'company'"),
         term: str = Query(..., description="The domain to research (e.g., 'LegalTech')"),
-        overview_topics: List[str] = None) -> dict[str, Any]:
+        overview_topics: str = None) -> dict[str, Any]:
     if not term:
         raise HTTPException(status_code=400, detail="Term parameter is required")
     job = Job.create()
     jobs[job.uuid] = job
     print(term)
+    try:
+        overview_topics = overview_topics.split(',')
+    except:
+        overview_topics = None
 
     workflow = Workflow(search_term=term,
                         job=job,

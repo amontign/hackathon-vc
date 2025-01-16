@@ -12,14 +12,24 @@ class Workflow:
                  search_type: str = None
                  ):
         self.job = job
-        self.search_term = search_term
+
         self.chat_gpt = ChatGPTWrapper()
         self.perplexity = PerplexityWrapper()
-        self.term_type = None
-        self.qa_pairs = []
-        self.topics = topics
+
+        self.search_term = search_term
+        self.job.search_term = search_term
         self.search_type = search_type
+        self.job.search_type = search_type
+        self.topics = topics
+        self.job.topics = topics
+
+        self.term_type = None
+
+        self.qa_pairs = []
+        self.job.qa_pairs = self.qa_pairs
+
         self.summary = ""
+        self.job.summary = self.summary
 
     async def step1(self):
         """
