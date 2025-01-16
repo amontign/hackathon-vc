@@ -85,7 +85,7 @@ def extract_domains(response):
 
     return list(seen)
 
-def enrich_company_list(company_list):
+async def enrich_company_list(company_list):
     """
         Enrich a list of startups or enterprises with Harmonic data
 

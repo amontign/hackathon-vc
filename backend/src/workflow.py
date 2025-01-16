@@ -69,23 +69,23 @@ class Workflow:
 
     async def get_table_enterprise(self):
         enterprise_domains = await harmonic_requests.find_enterprises(self.search_term, self.perplexity)
-        self.enterprise_companies = harmonic_requests.enrich_company_list(enterprise_domains)
+        self.enterprise_companies = await harmonic_requests.enrich_company_list(enterprise_domains)
         return self.enterprise_companies
 
     async def get_table_startup(self):
         startup_domains = await harmonic_requests.find_top_startups(self.search_term, self.perplexity)
-        self.startup_companies = harmonic_requests.enrich_company_list(startup_domains)
+        self.startup_companies = await harmonic_requests.enrich_company_list(startup_domains)
         return self.startup_companies
 
     async def get_table_webvisits(self):
-        self.startup_yearly_webtraffic = harmonic_requests.combine_yearly_webtraffic(self.startup_companies)
-        self.enterprise_yearly_webtraffic = harmonic_requests.combine_yearly_webtraffic(self.enterprise_companies)
-        return self.enterprise_yearly_webtraffic
+        self.startup_yearly_webtraffic = await harmonic_requests.combine_yearly_webtraffic(self.startup_companies)
+        self.enterprise_yearly_webtraffic = await harmonic_requests.combine_yearly_webtraffic(self.enterprise_companies)
+        return self.startup_yearly_webtraffic
 
     async def get_table_employees_total(self):
-        self.startup_yearly_headcount = harmonic_requests.combine_yearly_metrics(self.startup_companies)
-        self.enterprise_yearly_headcount = harmonic_requests.combine_yearly_metrics(self.enterprise_companies)
-        return self.enterprise_yearly_headcount
+        self.startup_yearly_headcount = await harmonic_requests.combine_yearly_metrics(self.startup_companies)
+        self.enterprise_yearly_headcount = await harmonic_requests.combine_yearly_metrics(self.enterprise_companies)
+        return self.startup_yearly_headcount
 
     async def run(self) -> str:
         """
@@ -97,12 +97,16 @@ class Workflow:
         print(self.job.message)
         self.job.table_startup = await self.get_table_startup()
         self.job.progress += 5
+        self.job.message = f'Startup table created'
         self.job.table_enterprise = await self.get_table_enterprise()
         self.job.progress += 5
+        self.job.message = f'Enterprise table created'
         self.job.chart_web_trend = await self.get_table_webvisits()
         self.job.progress += 5
+        self.job.message = f'Web traffic table created'
         self.job.chart_headcount_trend = await self.get_table_employees_total()
         self.job.progress += 5
+        self.job.message = f'Headcount table created'
         await self.step2()
         self.job.progress += 50
         await self.step3()
