@@ -89,7 +89,7 @@ async def catch_all(request: Request, path_name: str):
     )
 
 
-async def main():
+def main():
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
