@@ -3,11 +3,13 @@ from overview import ParallelQuestions
 from job import Job, Status
 from typing import List
 
+
 class Workflow:
     def __init__(self,
                  search_term: str,
                  job: Job,
-                 topics: List[str] = None
+                 topics: List[str] = None,
+                 search_type: str = None
                  ):
         self.job = job
         self.search_term = search_term
@@ -16,6 +18,7 @@ class Workflow:
         self.term_type = None
         self.qa_pairs = []
         self.topics = topics
+        self.search_type = search_type
         self.summary = ""
 
     async def step1(self):
@@ -73,11 +76,13 @@ class Workflow:
 
 async def main():
     workflow = Workflow(search_term="Foundational GraphQL",
-                        job = Job.create()
+                        job=Job.create()
                         )
     result_markdown = await workflow.run()
     print(result_markdown)
 
+
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(main())

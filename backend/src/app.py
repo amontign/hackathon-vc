@@ -1,4 +1,5 @@
 from typing import Any, List
+from model import SearchType
 
 import settings
 
@@ -32,7 +33,9 @@ app.add_middleware(
 
 
 @app.get("/create", response_model=dict[str, Any])
-async def create_flow(term: str = Query(..., description="The domain to research (e.g., 'LegalTech')"),
+async def create_flow(
+                      search_type: SearchType = Query(..., description="The type of search to perform: 'market' or 'company'"),
+                      term: str = Query(..., description="The domain to research (e.g., 'LegalTech')"),
                       overview_topics: List[str] = Query(..., description="The topics to research from list")
                       ) -> dict[str, Any]:
     if not term:
@@ -41,7 +44,10 @@ async def create_flow(term: str = Query(..., description="The domain to research
     jobs[job.uuid] = job
     print(term)
 
-    workflow = Workflow(search_term=term, job=job, topics=overview_topics)
+    workflow = Workflow(search_term=term,
+                        job=job,
+                        topics=overview_topics,
+                        search_type=search_type)
     asyncio.create_task(workflow.run())
     return {"uuid": str(job.uuid)}
 
