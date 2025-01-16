@@ -102,6 +102,7 @@ class Workflow:
         # select columns in order
         df['name'] = '[' + df['name'] + '](https://' + df['website'] + ')'
         df['founding_year'] = df['founding_date'].apply(lambda x: x[0:4])
+        df['funding_total'] = df['funding_total'].apply(lambda x: f"{x/1000000:.1f}M")
         df = df[['name', 'founding_year', 'funding_total']]
         return df.to_markdown(index=False)
 
