@@ -20,7 +20,7 @@ Go to https://hack25mr.rdp.vc and check how it works!
 4. Visit https://localhost:30012
 
 ## Docs
-- Backend: https://localhost:30011/docs
+- Backend: https://localhost:30011/docs or https://api.hack25mr.rdp.vc/docs
 
 ## How it works?
 
