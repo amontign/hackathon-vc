@@ -2,7 +2,6 @@ import os
 import requests
 from ai import PerplexityWrapper
 import re
-import asyncio
 
 def extract_yearly_metrics(metrics):
     yearly_metrics = {}
@@ -24,13 +23,16 @@ def extract_yearly_metrics(metrics):
 
     return yearly_metrics
 
-def get_company(domain):
+async def get_company(domain):
     """
         Starting point for a startup specific search, returning key info about the company
 
         Input: Domain of the company
         Output: Harmonic company object with relevant fields
     """
+
+    # TODO: rewrite to httpx
+
     url = "https://api.harmonic.ai/companies"
     response = requests.post(url,
                             headers={"accept": "application/json",
@@ -92,7 +94,7 @@ async def enrich_company_list(company_list):
         Input: List of company domains
         Output: List of Harmonic company objects with relevant fields
     """
-    company_data = [get_company(domain) for domain in company_list]
+    company_data = [await get_company(domain) for domain in company_list]
     company_data = [company for company in company_data if company is not None]
     return company_data
     
