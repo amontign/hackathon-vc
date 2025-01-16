@@ -4,6 +4,7 @@ from job import Job, Status
 from typing import List
 import harmonic_requests
 from settings import SRC_DIR
+import pandas as pd
 
 
 class Workflow:
@@ -94,6 +95,26 @@ class Workflow:
         self.enterprise_yearly_headcount = await harmonic_requests.combine_yearly_metrics(self.enterprise_companies)
         return self.startup_yearly_headcount
 
+    @staticmethod
+    def table2md(table: list[dict]) -> str:
+        df = pd.DataFrame(table)
+        # select columns in order
+        df['name'] = '[' + df['name'] + '](https://' + df['website'] + ')'
+        df['founding_year'] = df['founding_date'].apply(lambda x: x[0:4])
+        df = df[['name', 'founding_year', 'funding_total']]
+        return df.to_markdown(index=False)
+
+    @property
+    def summary_with_tables(self):
+        return f"""{self.summary}
+        
+        ## Startups
+        {self.table2md(self.startup_companies)}
+        
+        ## Enterprises
+        {self.table2md(self.enterprise_companies)}
+        """
+
     async def run(self) -> str:
         """
         Execute the entire workflow and return the markdown summary.
@@ -120,7 +141,8 @@ class Workflow:
         self.job.progress += 20
         self.job.state = Status.DONE
         self.job.result = self.summary
-        print(self.summary)
+        # self.job.summary = self.summary_with_tables
+        # print(self.summary_with_tables)
         return self.summary
 
 
