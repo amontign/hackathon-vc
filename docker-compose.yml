@@ -4,8 +4,6 @@ services:
       context: ./backend
     ports:
       - "30011:8000"
-    volumes:
-      - ./backend:/app  # Optional: For development
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PERPLEXITY_KEY=${PERPLEXITY_KEY}
@@ -19,8 +17,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "30012:3000"
-    volumes:
-      - ./webapp:/webapp
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
