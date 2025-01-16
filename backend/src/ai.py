@@ -84,7 +84,7 @@ class ChatGPTWrapper(BaseAIWrapper):
         )
 
     async def get_answer(self, role: str, question: str) -> Optional[str]:
-        return await self._get_answer(role, question)[0]
+        return (await self._get_answer(role, question))[0]
 
 
 def test():

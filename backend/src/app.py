@@ -4,6 +4,7 @@ from model import SearchType
 import settings
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from fastapi import FastAPI, HTTPException, Query, Request
@@ -34,10 +35,9 @@ app.add_middleware(
 
 @app.get("/create", response_model=dict[str, Any])
 async def create_flow(
-                      search_type: SearchType = Query(..., description="The type of search to perform: 'market' or 'company'"),
-                      term: str = Query(..., description="The domain to research (e.g., 'LegalTech')"),
-                      overview_topics: List[str] = Query(..., description="The topics to research from list")
-                      ) -> dict[str, Any]:
+        search_type: SearchType = Query(..., description="The type of search to perform: 'market' or 'company'"),
+        term: str = Query(..., description="The domain to research (e.g., 'LegalTech')"),
+        overview_topics: List[str] = None) -> dict[str, Any]:
     if not term:
         raise HTTPException(status_code=400, detail="Term parameter is required")
     job = Job.create()
@@ -60,7 +60,7 @@ async def get_status(uuid: UUID = Query(..., description="UUID of the research f
         raise HTTPException(status_code=404, detail="Research flow not found")
 
 
-@app.get("/result", response_model=dict[str,str])
+@app.get("/result", response_model=dict[str, str])
 async def get_result(uuid: UUID = Query(..., description="UUID of the research flow")):
     try:
         return {'result': jobs[uuid].result}
@@ -79,7 +79,6 @@ async def get_overview_topics():
         raise HTTPException(status_code=500, detail=f"Error reading topics: {str(e)}")
 
 
-
 # Any other request - redirect to web
 @app.api_route("/{path_name:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def catch_all(request: Request, path_name: str):
@@ -90,7 +89,10 @@ async def catch_all(request: Request, path_name: str):
     )
 
 
-if __name__ == "__main__":
+async def main():
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+if __name__ == "__main__":
+    main()
