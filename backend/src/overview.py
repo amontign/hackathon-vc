@@ -1,7 +1,7 @@
 import asyncio
+from settings import SRC_DIR
 from ai import PerplexityWrapper
 from job import Job
-from settings import SRC_DIR
 from typing import List
 
 
@@ -84,7 +84,10 @@ class ParallelQuestions:
 
 
 async def main():
-    pq = ParallelQuestions("Federated GraphQl", job=Job.create())
+    pq = ParallelQuestions("Federated GraphQl",
+                           job=Job.create(),
+                           topics=['ai_use_cases', 'growth_projection']
+                           )
     answers = await pq.ask_all()
     for prompt, response in answers:
         print(f"*{prompt}*:\n{response}\n")
