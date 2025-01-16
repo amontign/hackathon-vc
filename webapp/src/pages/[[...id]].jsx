@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from 'next/router';
+import {
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  } from 'recharts';
 
 export default function Home() {
     const [market, setMarket] = useState('');
@@ -14,7 +17,10 @@ export default function Home() {
     const [showSearchResults, setShowSearchResults] = useState(false);
     const router = useRouter();
     const [advancedParametersSelected, setAdvancedParametersSelected] = useState([]);
+    const [chart1Data, setChart1Data] = useState(null);
+    const [chart2Data, setChart2Data] = useState(null);
     const [loadingMessage, setLoadingMessage] = useState("Loading results...");
+    const [tabledata, setTabledata] = useState("");
     const reasearch_id = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
 
     function checkStatus(interval, uuid) {
@@ -48,7 +54,16 @@ export default function Home() {
             if (data.result === undefined) {
                 throw new Error('Bad response');
             }
-            let results = data.result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').split('\n');
+            if (data.chart_headcount_trend) {
+                setChart1Data(Object.entries(data.chart_headcount_trend).map(([year, value]) => ({ year, value })));
+            }
+            if (data.chart_web_trend) {
+                setChart2Data(Object.entries(data.chart_web_trend).map(([year, value]) => ({ year, value })));
+            }
+            let results = data.summary_with_tables.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\[(.+?)\]\((.*?)\)/g, '<a href="$2" target="_blank">[$1]</a>').split('\n');
+            for (let i = 0; i < results.length; i++) {
+                results[i] = results[i].replace(/^[ \t]+/gm, '');
+            }
             let resultsParsed = [];
             let inTable = false;
             let table = [];
@@ -62,7 +77,7 @@ export default function Home() {
                         for (let j = 0; j < row.length; j++) {
                             for (let k = 0; k < row[j].length; k++) {
                                 console.log(row[j][k]);
-                                if (row[j][k] !== "-") {
+                                if (row[j][k] !== "-" && row[j][k] !== ":") {
                                     isPushable = true;
                                     break;
                                 }
@@ -122,6 +137,7 @@ export default function Home() {
                     }
                 }
             }
+            console.log(resultsParsed);
             setResults(resultsParsed);
         }).catch((error) => {
             console.error('Error:', error);
@@ -198,7 +214,7 @@ export default function Home() {
     return (
         <div className="w-full h-full relative">
             <div className={`w-full transition-all duration-700 ${reasearch_id ? "h-20 gap-0" : "h-screen gap-10"} flex items-center justify-center flex-col`}>
-                <h1 className={`text-white text-6xl pointer-events-none duration-500 transition-all ${reasearch_id ? "h-0 opacity-0" : "h-16 opacity-100"}`}>Startup Market Researcher</h1>
+                <h1 className={`text-white text-6xl pointer-events-none duration-500 transition-all ${reasearch_id ? "h-0 opacity-0" : "h-16 opacity-100"}`}>OneSearch</h1>
                 <form className="rounded-lg flex flex-col overflow-hidden" onSubmit={handleReasearch}>
                     <div className={`flex w-full transition-all gap-2 ${showSearchResults ? "h-0 opacity-0" : "h-10 opacity-100"}`}>
                         <div className={`bg-white w-1/2 h-full flex items-center justify-center rounded-t-lg ${searchMode === 0 ? "" : " opacity-50 cursor-pointer shadow-[inset_0px_-2px_10px_#00000080]"}`} onClick={(e) => {
@@ -228,25 +244,108 @@ export default function Home() {
                             <p className="text-black text-xl">Advanced parameters</p>
                         </div>
                         <div className={`w-full transition-all grid grid-cols-2 duration-500 delay-0 ${advancedParametersShow ? "max-h-screen pb-2" : "max-h-0 pb-0"}`}>
-                        {advancedParameters.map((parameter, index) => {
-                            const isSelected = advancedParametersSelected.includes(parameter);
-                            const handleClick = () => {
-                                if (isSelected) {
-                                    setAdvancedParametersSelected(advancedParametersSelected.filter((item) => item !== parameter));
-                                } else {
-                                    setAdvancedParametersSelected([...advancedParametersSelected, parameter]);
-                                }
-                            };
-                            return (
-                                <div key={index} onClick={handleClick} className="flex items-center gap-2 cursor-pointer">
-                                    <div className={`h-5 w-5 rounded border border-black flex items-center justify-center ${isSelected && "bg-[#7E99A3]"}`}></div>
-                                    <label className="text-black text-lg">{parameter}</label>
-                                </div>
-                            );
-                        })}
+                            {advancedParameters.map((parameter, index) => {
+                                const isSelected = advancedParametersSelected.includes(parameter);
+                                const handleClick = () => {
+                                    if (isSelected) {
+                                        setAdvancedParametersSelected(advancedParametersSelected.filter((item) => item !== parameter));
+                                    } else {
+                                        setAdvancedParametersSelected([...advancedParametersSelected, parameter]);
+                                    }
+                                };
+                                return (
+                                    <div key={index} onClick={handleClick} className="flex items-center gap-2 cursor-pointer">
+                                        <div className={`h-5 w-5 rounded border border-black flex items-center justify-center ${isSelected && "bg-[#7E99A3]"}`}></div>
+                                        <label className="text-black text-lg">{parameter}</label>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </form>
+
+                    {/* Search exemples */}
+                    {/*<div className={`transition-all flex flex-col gap-5 items-center ${showSearchResults ? "max-h-0 opacity-0" : " max-h-screen opacity-100"}`}>
+                        <div className="w-[90rem] flex gap-5">
+                            <div className="w-1/3 bg-[#ffffffd0] rounded-lg flex flex-col gap-2 justify-between p-2 cursor-pointer">
+                                <p className="text-xl font-semibold">Legal tech</p>
+                                <div className="w-full flex overflow-hidden gap-2 relative">
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Current Market State</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Funding Trends</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">AI Use Cases</p>
+                                    </div>
+                                    <div className="absolute w-full h-full bg-gradient-to-r from-[#e1e2e300] via-[#e1e2e320] via-80% to-[#e1e2e3]"></div>
+                                </div>
+                            </div>
+                            <div className="w-1/3 bg-[#ffffffd0] rounded-lg flex flex-col gap-2 justify-between p-2 cursor-pointer">
+                                <p className="text-xl font-semibold">Legal tech</p>
+                                <div className="w-full flex overflow-hidden gap-2 relative">
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Current Market State</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Funding Trends</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">AI Use Cases</p>
+                                    </div>
+                                    <div className="absolute w-full h-full bg-gradient-to-r from-[#e1e2e300] via-[#e1e2e320] via-80% to-[#e1e2e3]"></div>
+                                </div>
+                            </div>
+                            <div className="w-1/3 bg-[#ffffffd0] rounded-lg flex flex-col gap-2 justify-between p-2 cursor-pointer">
+                                <p className="text-xl font-semibold">Legal tech</p>
+                                <div className="w-full flex overflow-hidden gap-2 relative">
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Current Market State</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Funding Trends</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">AI Use Cases</p>
+                                    </div>
+                                    <div className="absolute w-full h-full bg-gradient-to-r from-[#e1e2e300] via-[#e1e2e320] via-80% to-[#e1e2e3]"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="w-[60rem] flex gap-5">
+                            <div className="w-1/2 bg-[#ffffffd0] rounded-lg flex flex-col gap-2 justify-between p-2 cursor-pointer">
+                                <p className="text-xl font-semibold">Legal tech</p>
+                                <div className="w-full flex overflow-hidden gap-2 relative">
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Current Market State</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Funding Trends</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">AI Use Cases</p>
+                                    </div>
+                                    <div className="absolute w-full h-full bg-gradient-to-r from-[#e1e2e300] via-[#e1e2e320] via-80% to-[#e1e2e3]"></div>
+                                </div>
+                            </div>
+                            <div className="w-1/2 bg-[#ffffffd0] rounded-lg flex flex-col gap-2 justify-between p-2 cursor-pointer">
+                                <p className="text-xl font-semibold">Legal tech</p>
+                                <div className="w-full flex overflow-hidden gap-2 relative">
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Current Market State</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">Funding Trends</p>
+                                    </div>
+                                    <div className="py-1 px-4 bg-[#000000d0] rounded flex items-center">
+                                        <p className="text-white text-lg whitespace-nowrap">AI Use Cases</p>
+                                    </div>
+                                    <div className="absolute w-full h-full bg-gradient-to-r from-[#e1e2e300] via-[#e1e2e320] via-80% to-[#e1e2e3]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*/}
             </div>
             {showSearchResults && (
                 <div className="w-full h-full px-32">
@@ -307,6 +406,32 @@ export default function Home() {
                             })}
                         </div>
                     )}
+                    <div className="flex justify-between gap-10">
+                        {chart1Data && <div className="w-full">
+                            <p className="text-white text-2xl mb-4">Headcount trend</p>
+                            <ResponsiveContainer width="100%" height={300} stroke="#fff">
+                                <LineChart data={chart1Data}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="year" axisLine={{ stroke: '#fff' }} tick={{ fill: '#fff', fontSize: 12 }} />
+                                    <YAxis axisLine={{ stroke: '#fff' }} tick={{ fill: '#fff', fontSize: 12 }} />
+                                    <Tooltip />
+                                    <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>}
+                        {chart2Data && <div className="w-full">
+                            <p className="text-white text-2xl mb-4">Web trend</p>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <LineChart data={chart2Data}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="year" axisLine={{ stroke: '#fff' }} tick={{ fill: '#fff', fontSize: 12 }} />
+                                    <YAxis axisLine={{ stroke: '#fff' }} tick={{ fill: '#fff', fontSize: 12 }} />
+                                    <Tooltip />
+                                    <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>}
+                    </div>
                 </div>
             )}
         </div>
