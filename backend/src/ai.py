@@ -3,7 +3,7 @@ from functools import cached_property
 from typing import Optional
 from openai import AsyncOpenAI
 from settings import OPENAI_API_KEY, PERPLEXITY_KEY
-
+import re
 
 class BaseAIWrapper(ABC):
     """
@@ -86,6 +86,14 @@ class ChatGPTWrapper(BaseAIWrapper):
     async def get_answer(self, role: str, question: str) -> Optional[str]:
         return (await self._get_answer(role, question))[0]
 
+def assign_links(message: str, citations: list[str]) -> str:
+    def replace_citation(match):
+        index = int(match.group(1)) - 1
+        if 0 <= index < len(citations):
+            return f' [{index + 1}]({citations[index]})'
+        return match.group(0)
+    
+    return re.sub(r'\[(\d+)\]', replace_citation, message)
 
 def test():
     example_message = """
@@ -126,8 +134,8 @@ def test():
                          'https://www.apollographql.com/blog/9-lessons-from-a-year-of-apollo-federation/',
                          'https://www.grandviewresearch.com/industry-analysis/education-technology-market',
                          'https://graphql.org/conf/2024/schedule/9b4f92f2579d24a3c20e6533686aca6b/']
-
-    print(PerplexityWrapper().format_result(example_message, example_citations))
+    # print(PerplexityWrapper().format_result(example_message, example_citations))
+    print(assign_links(example_message, example_citations))
 
 if __name__ == "__main__":
     test()
