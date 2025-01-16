@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 import settings
 
@@ -58,6 +58,18 @@ async def get_result(uuid: UUID = Query(..., description="UUID of the research f
         return {'result': jobs[uuid].result}
     except KeyError:
         raise HTTPException(status_code=404, detail="Research flow not found")
+
+
+@app.get("/overview_topics", response_model=List[str])
+async def get_overview_topics():
+    prompts_dir = settings.SRC_DIR / 'prompts' / 'overview'
+    try:
+        # Get all txt files in the prompts directory
+        topics = [file.stem for file in prompts_dir.glob('*.txt')]
+        return topics
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reading topics: {str(e)}")
+
 
 
 # Any other request - redirect to web
