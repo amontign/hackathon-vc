@@ -2,6 +2,7 @@ from ai import PerplexityWrapper, ChatGPTWrapper
 from overview import ParallelQuestions
 from job import Job, Status
 from typing import List
+import harmonic_requests
 
 
 class Workflow:
@@ -66,87 +67,21 @@ class Workflow:
         # Format the summary in Markdown
         self.summary = f"# Summary\n\n{self.summary}"
 
-    @staticmethod
-    async def get_table_enterprise():
-        return [
-            {'name': 'MegaCorp', 'revenue': 5000000000, 'employees': 100000, 'website': 'https://www.megacorp.biz', 'founded': 1901},
-            {'name': 'HyperGlobal Inc.', 'revenue': 12000000000, 'employees': 300000, 'website': 'https://www.hyperglobal.io', 'founded': 1888},
-            {'name': 'Quantum Solutions', 'revenue': 2500000000, 'employees': 75000, 'website': 'https://www.qsolutions.ai', 'founded': 1982},
-        ]
+    async def get_table_enterprise(self):
+        enterprise_domains = await harmonic_requests.find_enterprises(self.search_term, self.perplexity)
+        self.enterprise_companies = harmonic_requests.enrich_company_list(enterprise_domains)
 
-    @staticmethod
-    async def get_table_startup():
-        return [
-            {'name': 'BananaTech', 'funding': 15000, 'employees': 2, 'website': 'https://www.bananatech.xyz', 'founded': 2023},
-            {'name': 'HoverChair Co.', 'funding': 500000, 'employees': 12, 'website': 'https://www.hoverchair.io', 'founded': 2022},
-            {'name': 'Unicornify', 'funding': 999999999, 'employees': 5, 'website': 'https://www.unicornify.lol', 'founded': 2021},
-        ]
+    async def get_table_startup(self):
+        startup_domains = await harmonic_requests.find_top_startups(self.search_term, self.perplexity)
+        self.startup_companies = harmonic_requests.enrich_company_list(startup_domains)
 
-    @staticmethod
-    async def get_table_webvisits():
-        return {
-            '18Q1': 20000,
-            '18Q2': 30000,
-            '18Q3': 40000,
-            '18Q4': 50000,
-            '19Q1': 60000,
-            '19Q2': 80000,
-            '19Q3': 100000,
-            '19Q4': 120000,
-            '20Q1': 150000,
-            '20Q2': 180000,
-            '20Q3': 220000,
-            '20Q4': 250000,
-            '21Q1': 300000,
-            '21Q2': 350000,
-            '21Q3': 380000,
-            '21Q4': 400000,
-            '22Q1': 450000,
-            '22Q2': 500000,
-            '22Q3': 550000,
-            '22Q4': 600000,
-            '23Q1': 650000,
-            '23Q2': 700000,
-            '23Q3': 780000,
-            '23Q4': 850000,
-            '24Q1': 900000,
-            '24Q2': 950000,
-            '24Q3': 980000,
-            '24Q4': 1000000,
-        }
+    async def get_table_webvisits(self):
+        self.startup_yearly_webtraffic = harmonic_requests.get_yearly_webtraffic(self.startup_companies)
+        self.enterprise_yearly_webtraffic = harmonic_requests.get_yearly_webtraffic(self.enterprise_companies)
 
-    @staticmethod
-    async def get_table_employees_total():
-        return {
-            '18Q1': 100000,
-            '18Q2': 105000,
-            '18Q3': 110000,
-            '18Q4': 115000,
-            '19Q1': 120000,
-            '19Q2': 125000,
-            '19Q3': 130000,
-            '19Q4': 135000,
-            '20Q1': 140000,
-            '20Q2': 145000,
-            '20Q3': 150000,
-            '20Q4': 155000,
-            '21Q1': 160000,
-            '21Q2': 165000,
-            '21Q3': 170000,
-            '21Q4': 180000,
-            '22Q1': 190000,
-            '22Q2': 200000,
-            '22Q3': 210000,
-            '22Q4': 220000,
-            '23Q1': 230000,
-            '23Q2': 240000,
-            '23Q3': 255000,
-            '23Q4': 270000,
-            '24Q1': 285000,
-            '24Q2': 300000,
-            '24Q3': 310000,
-            '24Q4': 320000,
-        }
+    async def get_table_employees_total(self):
+        self.startup_yearly_headcount = harmonic_requests.get_yearly_headcount(self.startup_companies)
+        self.enterprise_yearly_headcount = harmonic_requests.get_yearly_headcount(self.enterprise_companies)
 
     async def run(self) -> str:
         """
