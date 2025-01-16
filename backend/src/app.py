@@ -32,15 +32,17 @@ app.add_middleware(
 
 
 @app.get("/create", response_model=dict[str, Any])
-async def create_flow(term: str = Query(..., description="The domain to research (e.g., 'LegalTech')")):
+async def create_flow(term: str = Query(..., description="The domain to research (e.g., 'LegalTech')"),
+                      overview_topics: List[str] = Query(..., description="The topics to research from list")
+                      ) -> dict[str, Any]:
     if not term:
         raise HTTPException(status_code=400, detail="Term parameter is required")
     job = Job.create()
     jobs[job.uuid] = job
     print(term)
 
-    workflow = Workflow(search_term=term)
-    asyncio.create_task(workflow.run(job))
+    workflow = Workflow(search_term=term, job=job, topics=overview_topics)
+    asyncio.create_task(workflow.run())
     return {"uuid": str(job.uuid)}
 
 
