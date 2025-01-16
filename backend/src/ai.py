@@ -135,7 +135,7 @@ def test():
                          'https://www.grandviewresearch.com/industry-analysis/education-technology-market',
                          'https://graphql.org/conf/2024/schedule/9b4f92f2579d24a3c20e6533686aca6b/']
     # print(PerplexityWrapper().format_result(example_message, example_citations))
-    print(assign_links(example_message, example_citations))
+    #print(assign_links(example_message, example_citations))
 
-if __name__ == "__main__":
-    test()
+""" if __name__ == "__main__":
+    test() """
