@@ -66,10 +66,10 @@ class PerplexityWrapper(BaseAIWrapper):
     def format_result(message: str, citations: list) -> str:
         ...
 
-    async def get_answer(self, role: str, question: str) -> [Optional[str], Optional[str]]:
+    async def get_answer(self, role: str, question: str) -> Optional[str]:
         message, citations = await self._get_answer(role, question)
-        return self.format_result(message, citations)
-
+        # return self.format_result(message, citations)
+        return message
 
 class ChatGPTWrapper(BaseAIWrapper):
     """
@@ -83,7 +83,7 @@ class ChatGPTWrapper(BaseAIWrapper):
             api_key=OPENAI_API_KEY
         )
 
-    async def get_answer(self, role: str, question: str) -> [Optional[str], Optional[str]]:
+    async def get_answer(self, role: str, question: str) -> Optional[str]:
         return await self._get_answer(role, question)[0]
 
 
